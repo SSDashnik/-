@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои продажи - Магазин косметики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Мои продажи</h1>
+            <nav class="nav-menu">
+                <a href="{{ url_for('products.list_products') }}">Товары</a>
+                <a href="{{ url_for('sales.create_sale_form') }}">Оформить продажу</a>
+                <a href="{{ url_for('sales.my_sales') }}">Мои продажи</a>
+                <a href="{{ url_for('auth.logout') }}">Выход</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Моя выручка</h3>
+                <p class="stat-value">{{ "%.2f"|format(total_revenue) }} руб.</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Количество продаж</h3>
+                <p class="stat-value">{{ sales_count }}</p>
+            </div>
+        </div>
+
+        <h2>История моих продаж</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Товар</th>
+                    <th>Артикул</th>
+                    <th>Упаковка</th>
+                    <th>Количество</th>
+                    <th>Цена за единицу</th>
+                    <th>Общая сумма</th>
+                    <th>Дата продажи</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sales_with_products %}
+                    {% for item in sales_with_products %}
+                    <tr>
+                        <td>{{ item.sale.id }}</td>
+                        <td>{{ item.product.name if item.product else 'Товар удален' }}</td>
+                        <td>{{ item.product.article if item.product and item.product.article else '-' }}</td>
+                        <td>{{ item.product.package if item.product and item.product.package else '-' }}</td>
+                        <td>{{ item.sale.quantity }}</td>
+                        <td>{{ "%.2f"|format((item.sale.total_price / item.sale.quantity) if item.sale.quantity > 0 else 0) }} руб.</td>
+                        <td>{{ "%.2f"|format(item.sale.total_price) }} руб.</td>
+                        <td>{{ item.sale.sale_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8">У вас пока нет продаж</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+

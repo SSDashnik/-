@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить пользователя - Магазин косметики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Добавить пользователя</h1>
+            <nav class="nav-menu">
+                <a href="{{ url_for('users.list_users') }}">Назад к пользователям</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('users.create_user') }}" class="form">
+            <div class="form-group">
+                <label for="username">Имя пользователя *</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль *</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="full_name">Полное имя</label>
+                <input type="text" id="full_name" name="full_name">
+            </div>
+
+            <div class="form-group">
+                <label for="role">Роль *</label>
+                <select id="role" name="role" required>
+                    {% for role in roles %}
+                    <option value="{{ role }}">
+                        {% if role == 'director' %}
+                            Директор
+                        {% else %}
+                            Кассир
+                        {% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="button primary">Создать пользователя</button>
+                <a href="{{ url_for('users.list_users') }}" class="button">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

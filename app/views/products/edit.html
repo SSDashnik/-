@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать товар - Магазин косметики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Редактировать товар</h1>
+            <nav class="nav-menu">
+                <a href="{{ url_for('products.list_products') }}">Назад к товарам</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('products.update_product', product_id=product.id) }}" class="form">
+            <div class="form-group">
+                <label for="name">Название товара *</label>
+                <input type="text" id="name" name="name" value="{{ product.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="article">Артикул</label>
+                <input type="text" id="article" name="article" value="{{ product.article or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="package">Упаковка</label>
+                <input type="text" id="package" name="package" value="{{ product.package or '' }}" placeholder="Например: 50мл, 100г">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Категория *</label>
+                <input type="text" id="category" name="category" value="{{ product.category }}" list="categories" required>
+                <datalist id="categories">
+                    <option value="Крем">
+                    <option value="Помада">
+                    <option value="Тушь">
+                    <option value="Тональный крем">
+                    <option value="Тени для век">
+                    <option value="Пудра">
+                    <option value="Румяна">
+                    <option value="Тушь для ресниц">
+                    <option value="Карандаш для глаз">
+                    <option value="Помада для губ">
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Цена (руб.) *</label>
+                <input type="number" id="price" name="price" step="0.01" min="0" value="{{ product.price }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="stock_quantity">Количество на складе *</label>
+                <input type="number" id="stock_quantity" name="stock_quantity" min="0" value="{{ product.stock_quantity }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Описание</label>
+                <textarea id="description" name="description" rows="4">{{ product.description or '' }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="button primary">Сохранить изменения</button>
+                <a href="{{ url_for('products.list_products') }}" class="button">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

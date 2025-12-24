@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пользователи - Магазин косметики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Управление пользователями</h1>
+            <nav class="nav-menu">
+                <a href="{{ url_for('products.list_products') }}">Товары</a>
+                <a href="{{ url_for('sales.create_sale_form') }}">Оформить продажу</a>
+                {% if current_user.is_director() %}
+                <a href="{{ url_for('sales.list_sales') }}">Все продажи</a>
+                <a href="{{ url_for('sales.statistics') }}">Статистика</a>
+                <a href="{{ url_for('products.discounts') }}">Скидки</a>
+                <a href="{{ url_for('users.list_users') }}">Пользователи</a>
+                {% else %}
+                <a href="{{ url_for('sales.my_sales') }}">Мои продажи</a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}">Выход</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="actions">
+            <a href="{{ url_for('users.create_form') }}" class="button primary">Добавить пользователя</a>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя пользователя</th>
+                    <th>Полное имя</th>
+                    <th>Роль</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.full_name or '-' }}</td>
+                        <td>
+                            {% if user.role == 'director' %}
+                                Директор
+                            {% else %}
+                                Кассир
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d.%m.%Y') if user.created_at else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('users.edit_form', user_id=user.id) }}" class="button small">Редактировать</a>
+                            <form method="POST" action="{{ url_for('users.delete_user', user_id=user.id) }}" style="display: inline;">
+                                <button type="submit" class="button small danger" onclick="return confirm('Удалить пользователя?')">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6">Пользователи не найдены</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+

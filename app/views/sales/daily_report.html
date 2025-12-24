@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет за день - Магазин косметики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Отчет за день</h1>
+            <nav class="nav-menu">
+                <a href="{{ url_for('products.list_products') }}">Товары</a>
+                <a href="{{ url_for('sales.create_sale_form') }}">Оформить продажу</a>
+                {% if current_user.is_director() %}
+                <a href="{{ url_for('sales.list_sales') }}">Все продажи</a>
+                <a href="{{ url_for('sales.statistics') }}">Статистика</a>
+                <a href="{{ url_for('sales.daily_report') }}">Отчет за день</a>
+                <a href="{{ url_for('products.discounts') }}">Скидки</a>
+                <a href="{{ url_for('users.list_users') }}">Пользователи</a>
+                {% else %}
+                <a href="{{ url_for('sales.my_sales') }}">Мои продажи</a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}">Выход</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="filters">
+            <h2>Выберите дату</h2>
+            <form method="GET" class="filter-form">
+                <input type="date" name="date" value="{{ report_date.strftime('%Y-%m-%d') }}" required>
+                <button type="submit" class="button primary">Показать отчет</button>
+            </form>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Выручка за {{ report_date.strftime('%d.%m.%Y') }}</h3>
+                <p class="stat-value">{{ "%.2f"|format(daily_revenue) }} руб.</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Количество продаж</h3>
+                <p class="stat-value">{{ sales_count }}</p>
+            </div>
+        </div>
+
+        <h2>Детализация продаж</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Товар</th>
+                    <th>Артикул</th>
+                    <th>Упаковка</th>
+                    <th>Количество</th>
+                    <th>Цена за единицу</th>
+                    <th>Общая сумма</th>
+                    <th>Кассир</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sales_with_products %}
+                    {% for item in sales_with_products %}
+                    <tr>
+                        <td>{{ item.sale.sale_date.strftime('%H:%M') }}</td>
+                        <td>{{ item.product.name if item.product else 'Товар удален' }}</td>
+                        <td>{{ item.product.article if item.product and item.product.article else '-' }}</td>
+                        <td>{{ item.product.package if item.product and item.product.package else '-' }}</td>
+                        <td>{{ item.sale.quantity }}</td>
+                        <td>{{ "%.2f"|format((item.sale.total_price / item.sale.quantity) if item.sale.quantity > 0 else 0) }} руб.</td>
+                        <td>{{ "%.2f"|format(item.sale.total_price) }} руб.</td>
+                        <td>{{ item.sale.cashier.username if item.sale.cashier else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8">Продаж за этот день не было</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать пользователя - Магазин косметики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Редактировать пользователя</h1>
+            <nav class="nav-menu">
+                <a href="{{ url_for('users.list_users') }}">Назад к пользователям</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('users.update_user', user_id=user.id) }}" class="form">
+            <div class="form-group">
+                <label for="username">Имя пользователя *</label>
+                <input type="text" id="username" name="username" value="{{ user.username }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Новый пароль (оставьте пустым, чтобы не менять)</label>
+                <input type="password" id="password" name="password">
+            </div>
+
+            <div class="form-group">
+                <label for="full_name">Полное имя</label>
+                <input type="text" id="full_name" name="full_name" value="{{ user.full_name or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="role">Роль *</label>
+                <select id="role" name="role" required>
+                    {% for role in roles %}
+                    <option value="{{ role }}" {% if role == user.role %}selected{% endif %}>
+                        {% if role == 'director' %}
+                            Директор
+                        {% else %}
+                            Кассир
+                        {% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="button primary">Сохранить изменения</button>
+                <a href="{{ url_for('users.list_users') }}" class="button">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

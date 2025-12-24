@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Магазин косметики</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Магазин косметики</h1>
+    </header>
+
+    <nav class="actions">
+      {% if current_user.is_authenticated %}
+        <span>Выполнен вход как: <strong>{{ current_user.username }}</strong> 
+        ({% if current_user.is_director() %}Директор{% else %}Кассир{% endif %})</span>
+        <a class="button" href="{{ url_for('auth.logout') }}">Выйти</a>
+        <a class="button primary" href="{{ url_for('products.list_products') }}">Перейти к товарам</a>
+      {% else %}
+        <a class="button primary" href="{{ url_for('auth.login') }}">Войти</a>
+        <a class="button" href="{{ url_for('auth.register') }}">Регистрация</a>
+      {% endif %}
+    </nav>
+
+    <footer>
+    </footer>
+  </main>
+</body>
+</html>
